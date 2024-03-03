@@ -4,7 +4,7 @@ GO
 
 CREATE PROCEDURE dbo.GenerateInsert
 (
-  @ObjectName nvarchar(261)
+  @ObjectName nvarchar(261) 
 , @TargetObjectName nvarchar(261) = NULL
 , @OmmitInsertColumnList bit = 0
 , @GenerateSingleInsertPerRow bit = 0
@@ -27,6 +27,7 @@ CREATE PROCEDURE dbo.GenerateInsert
 , @GenerateStatementTerminator bit = 1
 , @ShowWarnings bit = 1
 , @Debug bit = 0
+, @MaxRecords INT = 1000
 )
 AS
 /*******************************************************************************
@@ -355,7 +356,10 @@ END ELSE BEGIN
       END
   ;
 END
-
+IF @TopExpression IS NULL AND @MaxRecords IS NOT NULL
+BEGIN
+    SET @TopExpression = CAST(@MaxRecords AS NVARCHAR(MAX));
+END
 SET @SelectStatement = N'SELECT'
   + CASE WHEN NULLIF(@TopExpression,N'') IS NOT NULL
     THEN N' TOP ' + @TopExpression
